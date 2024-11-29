@@ -1,0 +1,39 @@
+{
+  "name": "fastify-typeorm-postgres-api",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "tsc -w",
+    "dev": "nodemon",
+    "start:dev": "concurrently \"tsc -w\" \"nodemon\"",
+    "build": "tsc",
+    "start": "ts-node src/index.ts",
+    "migrate:up": "ts-node src/database/migration-runner.ts up",
+    "migrate:down": "ts-node src/database/migration-runner.ts down"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/type-provider-typebox": "^4.0.0",
+    "@sinclair/typebox": "^0.32.15",
+    "@types/bcrypt": "^5.0.2",
+    "bcrypt": "^5.1.1",
+    "concurrently": "^9.1.0",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.26.2",
+    "kysely": "^0.27.4",
+    "nodemon": "^3.1.7",
+    "pg": "^8.13.1",
+    "reflect-metadata": "^0.2.1",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.25",
+    "@types/pg": "^8.11.10",
+    "typescript": "^5.4.2"
+  }
+}
