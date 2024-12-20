@@ -1,8 +1,12 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 
 class ImageController {
-async setImageData(req: FastifyRequest, reply: FastifyReply) {
+  private server: FastifyInstance;
+  constructor(server: FastifyInstance) {
+    this.server = server;
+  }
+  async setImageData(req: FastifyRequest, reply: FastifyReply) {
     
+  }
 }
-}
-export const imageController = new ImageController();
+export default ImageController;

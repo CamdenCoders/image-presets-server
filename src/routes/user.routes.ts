@@ -1,8 +1,8 @@
 import { FastifyInstance } from "fastify";
-import { userController } from "../controller/user.controller";
-import { UserLoginSchema } from "../lib/schema";
+import UserController from "../controller/user.controller";
 
 export function userRoutes(server: FastifyInstance) {
-    server.post("/login", userController.logIn)
-    server.post("/signup", userController.signUp)
+  const userController = new UserController(server);
+  server.post("/user/login", userController.logIn.bind(userController));
+  server.post("/user/signup", userController.signUp);
 }

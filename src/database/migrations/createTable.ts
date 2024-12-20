@@ -2,16 +2,25 @@ import { Kysely, sql } from "kysely";
 
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
-    .createTable("user")
-    .addColumn("user_id", "uuid", (col) =>
+    .createTable("images")
+    .addColumn("image_id", "uuid", (col) =>
       col
         .defaultTo(sql`uuid_generate_v4()`)
         .primaryKey()
         .notNull()
     )
-    .addColumn("email", "varchar", (col) => col.notNull().unique())
-    .addColumn("password", "varchar", (col) => col.notNull())
-    .addColumn("full_name", "varchar", (col) => col.notNull())
+    .addColumn("image_name", "varchar", (col) => col.notNull().unique())
+    .addColumn("user_id", "uuid", (col) => col.notNull())
+    .execute();
+
+  await db.schema
+    .alterTable("images")
+    .addForeignKeyConstraint(
+      "images_user_id_fk", // Name of the foreign key constraint
+      ["user_id"], // Column(s) in the 'images' table
+      "user", // Referenced table
+      ["user_id"] // Column(s) in the 'users' table
+    )
     .execute();
 }
 

@@ -1,13 +1,13 @@
 import { hashPassword, verifyPassword } from "../utils/user.utils";
-import { LogInSchemaBody, SignUpSchemaBody } from "../lib/schema";
+import { LoginPayload, LogInSchemaBody, SignUpSchemaBody } from "../lib/schema";
 import { db } from "../database/database";
 
 export class UserRepository {
-  async logIn(loginDetails: LogInSchemaBody) {
+  async logIn(loginDetails: LogInSchemaBody): Promise<LoginPayload> {
     loginDetails.email = loginDetails.email.trim();
     const userExists = await db
       .selectFrom("user")
-      .select(["password", "email"])
+      .select(["password", "email", "user_id"])
       .where("email", "=", loginDetails.email)
       .executeTakeFirst();
 
@@ -17,6 +17,12 @@ export class UserRepository {
     if (!(await verifyPassword(loginDetails.password, userExists.password))) {
       throw new Error("Invalid credentials");
     }
+    const payload = {
+      user_id: userExists.user_id.toString(),
+      email: userExists.email,
+      full_name: userExists.email,
+    };
+    return payload;
   }
 
   async signUp(userDetails: SignUpSchemaBody): Promise<void> {

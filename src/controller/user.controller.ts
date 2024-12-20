@@ -1,15 +1,30 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import fastify, {
+  FastifyInstance,
+  FastifyReply,
+  FastifyRequest,
+} from "fastify";
 import { LogInSchemaBody, SignUpSchemaBody } from "../lib/schema";
 import { userRepository } from "../repository/user.repository";
 
 class UserController {
+  private server: FastifyInstance;
+
+  constructor(server: FastifyInstance) {
+    this.server = server; // Inject the Fastify instance
+  }
   async logIn(
     req: FastifyRequest<{ Body: LogInSchemaBody }>,
     reply: FastifyReply
   ) {
     try {
-      await userRepository.logIn(req.body);
-      reply.status(200).send();
+      const payload = await userRepository.logIn(req.body);
+      const token = this.server.jwt.sign(payload);
+      reply.setCookie("access_token", token, {
+        path: "/",
+        httpOnly: true,
+        secure: true,
+      });
+      reply.status(200).send(token);
     } catch (error) {
       reply.status(403).send(error);
     }
@@ -28,4 +43,4 @@ class UserController {
   }
 }
 
-export const userController = new UserController();
+export default UserController;

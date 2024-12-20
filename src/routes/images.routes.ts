@@ -1,7 +1,12 @@
 import { FastifyInstance } from "fastify";
 import { ImageRequestSchema } from "../lib/schema";
-import { imageController } from "../controller/image.controller";
+import ImageController from "../controller/image.controller";
 
 export function imageRoutes(server: FastifyInstance) {
-    server.post("/send-image-data", {schema: ImageRequestSchema}, imageController.setImageData)
-} 
+  const imageController = new ImageController(server);
+  server.post(
+    "/send-image-data",
+    { schema: ImageRequestSchema },
+    imageController.setImageData.bind(imageController)
+  );
+}
