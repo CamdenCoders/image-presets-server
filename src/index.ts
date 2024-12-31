@@ -8,6 +8,7 @@ import fastifyJwt from "@fastify/jwt";
 import fastifyCookie from "@fastify/cookie";
 import fastifyAuth from "@fastify/auth";
 import cors from "@fastify/cors";
+import multipart from "@fastify/multipart";
 
 dotenv.config();
 async function startServer() {
@@ -20,6 +21,9 @@ async function startServer() {
     origin: "http://localhost:3000", // Replace with the origin you want to allow
     methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
     credentials: true, // If using cookies or credentials
+  });
+  server.register(multipart, {
+    attachFieldsToBody: true,
   });
   await server.register(fastifyCookie, {
     secret: "obiwankenobi",

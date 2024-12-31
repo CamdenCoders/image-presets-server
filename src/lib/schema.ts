@@ -1,14 +1,10 @@
 import { Static, Type } from "@sinclair/typebox";
 
-export const ImageRequestSchema = Type.Object({
-  body: Type.Object({
-    image_name: Type.String(),
-    image_file: Type.String(),
-  }),
-  response: Type.Object({
-    200: Type.Null(), // Use Type.Null for an empty response body
-  }),
+export const ImageUploadSchema = Type.Object({
+  image_file: Type.String({ format: "binary" }),
+  image_name: Type.String(),
 });
+export type ImageUploadBody = Static<typeof ImageUploadSchema>;
 
 export const UserLoginSchema = Type.Object({
   email: Type.String(),
