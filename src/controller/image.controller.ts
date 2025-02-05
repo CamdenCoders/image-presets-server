@@ -1,41 +1,52 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import fs from "fs";
+import { pipeline } from "stream";
+import { promisify } from "util";
 import { imageRepository } from "../repository/images.repository";
-import { ImageUploadBody } from "../lib/schema";
+const pump = promisify(pipeline);
 
 class ImageController {
   private server: FastifyInstance;
   constructor(server: FastifyInstance) {
     this.server = server;
   }
-  async uploadImage(
-    req: FastifyRequest<{ Body: ImageUploadBody }>,
-    reply: FastifyReply
-  ) {
+  async uploadImage(req: FastifyRequest, reply: FastifyReply) {
     try {
-      const parts = await req.file();
-      const fields = parts?.fields;
-      const image_name = fields?.image_name ? fields.image_name : null;
+      // Decode user token
+      //console.log("Headers:", req.headers);
+      const token = req.headers.authorization?.split(" ")[1];
+      if (!token) {
+        return reply.status(401).send({ error: "Token not found" });
+      }
+      //console.log("Extracted Token:", token);
+      const decoded: any = this.server.jwt.verify(token!); // Verify and decode JWT
 
-      if (!image_name) {
-        return reply.status(400).send({ error: "Image name is required" });
+      // console.log("Decoded Token:", decoded);
+      // console.log("User ID:", decoded.user_id); // <-- Access user_id here
+
+      // Get uploaded file
+      const data = await req.file();
+
+      if (!data) {
+        return reply.status(400).send({ error: "File is required" });
       }
 
-      // Extract the file
-      const image_file = parts?.file;
+      // Extract filename and file stream
+      const { filename, file } = data;
 
-      if (!image_file) {
-        return reply.status(400).send({ error: "Image file is required" });
-      }
-      console.log("Image Name:", image_name);
-      console.log("File Details:", image_file);
-      const token: { id: string } = await req.jwtDecode();
-      const user_id = token.id;
-      const imageContents = {
-        image_name,
-        image_file,
-      };
-      const result = await imageRepository.upload(imageContents, user_id);
-    } catch (error) {}
+      const storedFilePath = `./uploads/${filename}`;
+      const storedFile = fs.createWriteStream(storedFilePath);
+
+      await pump(file, storedFile);
+
+      // Store metadata in database
+      await imageRepository.upload(filename, decoded.user_id);
+
+      return reply.status(200).send({ message: "Upload successful", filename });
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      return reply.status(500).send({ error: "File upload failed" });
+    }
   }
 }
 export default ImageController;

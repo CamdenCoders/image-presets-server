@@ -2,7 +2,7 @@ import { Static, Type } from "@sinclair/typebox";
 
 export const ImageUploadSchema = Type.Object({
   image_file: Type.String({ format: "binary" }),
-  image_name: Type.String(),
+  image_name: Type.Any(),
 });
 export type ImageUploadBody = Static<typeof ImageUploadSchema>;
 
