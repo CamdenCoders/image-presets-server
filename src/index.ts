@@ -22,7 +22,12 @@ async function startServer() {
     methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
     credentials: true, // If using cookies or credentials
   });
-  await server.register(multipart);
+  await server.register(multipart, {
+    attachFieldsToBody: false,
+    limits: {
+      fileSize: 50 * 1024 * 1024, // 50MB limit
+    },
+  });
   await server.register(fastifyCookie, {
     secret: "obiwankenobi",
     hook: "preHandler",

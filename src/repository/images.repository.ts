@@ -37,8 +37,6 @@ export class ImageRepository {
 
       const result = await upload.done();
       console.log("File uploaded successfully!");
-      // Delete file from server
-      await unlinkAsync(`./uploads/${filename}`);
 
       const fileUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/uploads/${filename}`;
       //console.log("File URL:", fileUrl);
@@ -50,9 +48,21 @@ export class ImageRepository {
           image_url: fileUrl,
         })
         .execute();
+      // Delete file from server
+      //await unlinkAsync(`./uploads/${filename}`);
     } catch (error) {
       console.error("Error uploading file:", error);
     }
+  }
+
+  async getImages(user_id: string) {
+    const result = await db
+      .selectFrom("images")
+      .select(["image_name", "image_id", "image_url"])
+      .where("user_id", "=", user_id)
+      .execute();
+
+    return result;
   }
 }
 export const imageRepository = new ImageRepository();

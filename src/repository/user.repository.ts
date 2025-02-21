@@ -1,6 +1,7 @@
 import { hashPassword, verifyPassword } from "../utils/user.utils";
 import { LoginPayload, LogInSchemaBody, SignUpSchemaBody } from "../lib/schema";
 import { db } from "../database/database";
+import { sql } from "kysely";
 
 export class UserRepository {
   async logIn(loginDetails: LogInSchemaBody): Promise<LoginPayload> {
@@ -49,6 +50,27 @@ export class UserRepository {
     } catch (error) {
       console.error("Error during user sign-up:", error);
       throw new Error("Not able to sign up. Try again");
+    }
+  }
+
+  async getDetails(user_id: any) {
+    try {
+      const result = await db
+        .selectFrom("user")
+        .leftJoin("images", "user.user_id", "images.user_id")
+        .select([
+          "user.full_name",
+          db.fn
+            .coalesce(db.fn.count("images.image_id"), sql.val(0))
+            .as("image_count"),
+        ])
+        .where("user.user_id", "=", user_id)
+        .groupBy("user.user_id")
+        .executeTakeFirstOrThrow();
+      return result;
+    } catch (error) {
+      console.error("Error while retrieving details", error);
+      throw new Error("Not able to fetch user details");
     }
   }
 }

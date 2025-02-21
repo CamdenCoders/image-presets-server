@@ -41,6 +41,22 @@ class UserController {
       reply.status(500).send(error);
     }
   }
+
+  async getDetails(req: FastifyRequest, reply: FastifyReply) {
+    try {
+      const token = req.headers.authorization?.split(" ")[1];
+      if (!token) {
+        return reply.status(401).send({ error: "Token not found" });
+      }
+      //console.log("Extracted Token:", token);
+      const decoded: any = this.server.jwt.verify(token!); // Verify and decode JWT
+
+      const response = await userRepository.getDetails(decoded.user_id);
+      reply.status(200).send(response);
+    } catch (error) {
+      reply.status(500).send(error);
+    }
+  }
 }
 
 export default UserController;
